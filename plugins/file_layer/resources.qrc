@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/" >
+        <file>icons/raster.png</file>   
+        <file>icons/vector.png</file>   		
+    </qresource>
+</RCC>
