@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/" >
+ 		<file>icons/mActionPan.png</file>   
+ 		<file>icons/mActionZoomIn.png</file>   
+ 		<file>icons/mActionZoomOut.png</file>   
+ 		<file>icons/print.png</file>   
+    </qresource>
+</RCC>
