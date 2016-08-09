@@ -1,0 +1,290 @@
+<html>
+<title>PostGIS Manager</title>
+
+<body>
+<div style="width: 900px">
+
+<h1>PostGIS Manager</h1>
+
+<h2>Intro</h2>
+
+PostGIS Manager is a plugin for Quantum GIS that aims to be a simple yet powerful tool for management of PostgreSQL databases
+with emphasis on support of spatially enabled tables in PostGIS. Target audience for this plugin are users that want to
+do some administration tasks on the tables in user-friendly graphical interface without having to type SQL commands.
+This plugin is not meant to be a complex tool supporting virtually all PostgreSQL/PostGIS functionality. Instead,
+it should help users with typical tasks and speed up the work.
+<p>
+We hope that PostGIS Manager will help to lower the burden when it comes to usage of geodatabases which are for many
+considered as an interesting but too complex concept to use for real work.
+<p>
+The user should have some basic knowledge about relational databases and their usage. For the simplest use for only
+viewing database structure and contents of tables, it's necessary to understand what the databases and tables.
+Before doing any modifications, it's highly recommended to understand the views, schemas, indexes, constraints, SQL syntax,
+triggers and rules. Otherwise one can do some serious harm to the data stored in the database.
+<p>
+<div style="margin:10px">
+<img src="main_window.png" alt="Main window" style="margin-bottom:5px">
+<br>
+<i>Main window of PostGIS Manager</i>
+</div>
+<p>
+Main window consists basically of two parts:
+<ul>
+<li><b>database view</b> - this is a widget that lists all tables and views in the database
+<li><b>central view</b> - displays metadata, tabular preview or map preview
+</ul>
+
+<h2>Short intro to PostGIS</h2>
+
+If you're familiar with PostGIS, feel free to skip this section.
+<p>
+PostGIS is an extension for PostgreSQL database that adds support for spatial data. Much of the objects we
+recognize in the world have some location: a restaurant can be defined by a point, a road can be described
+as a line with several segments and border of a forest can be represented as a polygon. This means that
+we can extend our tables (containing restaurants, roads, forests or anything else) with another column
+which will specify object's location. PostGIS implements adds a new <tt>geometry</tt> type that stores
+the spatial information. Once such table contains such column, we call it spatial table or geotable.
+<p>
+When working with a large set of data (think millions of rows), it's necessary to access the data effectively.
+Relational databases use indexes on columns to achieve better performance of queries. Traditional indexes
+however can't be used for the spatial data because they're two (or even more) dimensional. PostGIS comes
+with a spatial index (R-tree, as opposed to B-tree used for traditional indexes).
+<p>
+GIS software typically organizes data into layers: one layer is a set of objects with common properties,
+e.g. roads, railroads, rivers or cities. In relational databases one layer is represented with a table where one 
+row represents one object: geometry column determines the position and the rest of the columns are object's attributes.
+<p>
+
+
+<h2>Database view</h2>
+
+This widget displays database content in a hierarchy. Top-level items are always schemas (i.e. namespaces),
+their children are both tables and views. 
+<p>
+You can find following icons that differentiate the items in the view:
+<p>
+<img src="../icons/namespace.png" alt="schema"> Schema<br>
+<img src="../icons/table.png" alt="table"> Table<br>
+<img src="../icons/view.png" alt="view"> View<br>
+<p>
+If the database has PostGIS support, the plugin will detect which
+geometry type is used for the table (points, lines or polygons) and set appropriate icon (instead of the original table/view icon):
+<p>
+<img src="../icons/layer_point.png" alt="point" width="16" height="16"> Point layer<br>
+<img src="../icons/layer_line.png" alt="line" width="16" height="16"> Line layer<br>
+<img src="../icons/layer_polygon.png" alt="polygon"  width="16" height="16"> Polygon layer<br>
+<img src="../icons/layer_unknown.png" alt="unknown"> Unknown layer type<br>
+<p>
+Unknown layer type means that the geometry column is either not listed in <tt>geometry_columns</tt> or some special type is used.
+<p>
+Tables that contain more geometry columns are listed multiple times, each time for one geometry column. This is however not
+very common.
+<p>
+Schemas can be expanded and collapsed, by default all schemas are expanded if the database contains less than 100 tables or views.
+<p>
+Note: by default, there is a <tt>public</tt> schema in every database and is used implicitly. This means that
+tables in public schema can be accessed just by their name and not necessarily with <tt>schema.table</tt> syntax.
+
+<h2>Central view</h2>
+
+The central part consists of three tabs for inspection of the table metadata and their contents.
+
+<h3>Metadata tab</h3>
+
+Displays basic information about the table:
+<ul>
+<li> table name
+<li> row count
+<li> owner
+<li> user's privileges
+<li> detailed list of columns with their name, type and length
+<li> constraints (primary and foreign keys, unique columns, checks) with thier definitions
+<li> list of indexes
+<li> list of triggers and rules with possibility to enable/disable or delete them
+</ul>
+<p>
+For spatial tables it adds a section about geometry type, number of dimensions, coordinate reference system and layer's extent.
+<p>
+This tab is used also used to show schema and database information.
+
+<h3>Table tab</h3>
+
+Shows contents of the table in a table. Geometry columns are excluded from the view. The table is read-only.
+
+<h3>Preview tab</h3>
+
+Available only for spatial tables. Displays a simple map from the objects' geometries.
+
+<h2>Database connections</h2>
+
+In Database menu there's a list of available database connections. The list is loaded from QGIS settings and if you'd like
+to add, modify or delete any connections, you can do it within Quantum GIS, menu Layer &raquo; Add PostGIS Layer.
+Once connected, you can disconnect from the database (menu Database &raquo; Disconnect) or reconnect to a different database.
+<p>
+When started, PostGIS Manager tries to connect to the recently used database for convenience.
+
+<h2>Database info</h2>
+
+When the user selects menu Database &raquo; Show info, the metadata tab is filled with information about the database connection:
+host computer name, current user (role), user's privileges and server version. If the PostGIS support is installed for
+the database, it will also show information about version of PostGIS and its support libraries.
+<p>
+There may be also a warning stating there's a mismatch of versions of PostGIS scripts. This might be a result of
+incorrect upgrade of PostGIS: when installing a newer version, you should also re-run the initialization scripts for
+every database on the PostgreSQL server that has PostGIS support enabled. The scripts are in lwpostgis.sql and spatial_ref_sys.sql
+files, located in the PostGIS installation directory (depends on the platform).
+
+<h2>Management of schemas</h2>
+
+When clicked a schema, some basic information about the schema is shown: number of tables, owner and permissions of the current user.
+<p>
+It's possible to change schema's name by either clicking schema's name once more when selected or by pressing <tt>F2</tt>.
+When renaming schemas in spatial database, the <tt>geometry_columns</tt> table is altered too to reflect the change in schema's name.
+<p>
+In Schema menu it's possible to create a new schema and to delete an existing schema. The schema for deletion must be empty.
+
+<h2>Management of tables</h2>
+
+Whenever a table is selected in the database view, the central view is updated with data from the table.
+
+Double clicking table name in database view, clicking Edit table action in toolbar or Table menu, opens table properties dialog.
+The dialog comprises of three tabs: Columns, Constraints and Indexes - each of them containing a list and some actions.
+<p>
+
+<div style="margin:10px">
+<img src="table_edit.png" alt="Table properties dialog" style="margin-bottom:5px">
+<br>
+<i>Table properties dialog</i>
+</div>
+
+<p>
+You can do following operations with tables:
+<ul>
+<li>Add column - a new dialog is opened with new options for new field, it is appended to the table after accepting the dialog 
+<li>Add geometry column - to add spatial information to the table. In a new dialog it's possible to select name, geometry type,
+   number of dimensions and spatial reference ID. <tt>AddGeometryColumn</tt> function is used for creation of the column
+<li>Edit column - opens column properties (identical to add column dialog) and allows to modify one or more column settings
+<li>Delete column - drops the selected column, in case of a spatial column uses <tt>DropGeometryColumn</tt> function
+<li>Add constraint - in a dialog allows to specify constraint type and the column on which the constraint will be applied. Currently
+    supporting only creation of primary keys and uniques on one column
+<li>Delete constraint
+<li>Add index - opens a dialog for creation of index. The user is able to specify the column and index name
+<li>Add spatial index - goes through the geometry columns and asks whether to create spatial index
+<li>Delete index
+</ul>
+
+<p>
+
+It's possible to create new tables in a simple table creation dialog. You can open it by clicking Create table action in toolbar
+or doing the same in the Table menu. The dialog aims for simplicity and offers only basic options: schema, table name, list
+of columns with their types, column which will be used as a primary key. In case user's going to create a spatial table, it's
+possibly to specify geometry column name and type, optionally to create a spatial index.
+
+<div style="margin:10px">
+<img src="create_table.png" alt="Create table dialog" style="margin-bottom:5px">
+<br>
+<i>Create table dialog</i>
+</div>
+
+<p>
+
+There are also several more operations available in the Table menu:
+<ul>
+<li>Run VACUUM ANALYZE - in case your database server doesn't use autovacuum functionality, you should run this command manually
+as a part of maintenance. Failing to do so will result in suboptimal queries and bad usage of space with frequently modified tables
+<li>Move to a different schema - also updates <tt>geometry_columns</tt> table when used with spatial tables
+<li>Emtpy table - deletes all rows within the selected table
+<li>Delete table/view
+</ul>
+
+<h2>Data Import</h2>
+
+<h3>Load data from shapefile</h3>
+
+Clicking menu Data &raquo; Load data from shapefile will open a dialog for import of shapefiles into the database
+as spatial tables.
+The dialog acts as a simple frontend for the <tt>shp2pgsql</tt> command line utility from PostGIS. See <a href="http://postgis.refractions.net/documentation/manual-1.3/ch04.html#id2571948">Using the Loader</a> section
+from the PostGIS manual for more information.
+
+<p>
+
+There are several available import actions: only create table, only insert rows or both creation of table and insertion of rows.
+The tool supports several options, most of them can be set within the dialog. Finally, the resulting SQL commands can be
+either stored in a text file or directly applied in the current database connection.
+<p>
+<b>Note:</b> not having PostGIS installed on your local machine or being installed in some non-standard location will
+render this feature unusable because of the missing <tt>shp2pgsql</tt> tool.
+
+<h3>DBF Import</h3>
+
+For those willing to import some tables without geometries into the database, there's import wizard. Although
+currently supports only import from DBF files, it might eventually get support for more formats. The first step
+is to select input file and encoding. In the second step, one can see how the table will look like and optionally
+do some modifications to the table. Clicking Finish button the file gets imported into the database and the wizard
+is closed.
+
+<h2>Data Export</h2>
+
+There's a possibility to export spatial tables into shapefiles: use Dump data to shapefile (in Data menu).
+Similarly to the Load data from shapefile, this is a frontend to <tt>pgsql2shp</tt> utility from PostGIS. See
+<a href="http://postgis.refractions.net/documentation/manual-1.3/ch04.html#id2572357">Using the Dumper</a> section
+from the PostGIS manual for more information.
+<p>
+A dialog will pop up where the user can set the source table to be used for import and the output shapefile.
+The resulting shapefile will be generated after clicking the Dump button.
+
+
+<h2>Advanced features</h2>
+
+<h3>Geometry processing</h3>
+
+In many case you may want to do some analyses with your spatial tables. Often it's useful to know
+the area of every polygon or length of every linestring in a spatial table. Just imagine situation where
+you would like to see polygons symbolized depending on their size. Or as a part of cleaning process you
+want to delete some of the smallest polygons. In these cases it's handy to have the area or length value
+precalculated in a separate attribute. Of course it's possible to let PostgreSQL calculate the values
+on the fly (e.g. using a view with such calculated column), but that leads to performance penalties
+on retrieval of data.
+<p>
+Geometry processing dialog greatly simplifies the task of calculation of features' area or length.
+You just select the table and appropriate geometry column (usually there's just one per table) and 
+the attribute which will receive the calculated values.
+<p>
+If data in your table are being added or modified, the calculated values become soon invalid. But don't worry.
+There's a check box "Add a trigger for calculation on insert and update". If checked, the dialog
+not only calculates the values (one-time action) but it also creates a trigger function that does the calculation and
+assigns it to the table. On each modification of the table trigger function updates the area/length attribute
+to make sure the value is correct. 
+<p>
+Note: both area and length are calculated in the units of layer's projection. If the layer has meters
+as map units, the resulting length is in meters and area in square meters. When using lat/lon coordinates,
+the map unit is one degree and the resulting length (in degrees) and area (in square degrees) doesn't have much use (IMHO).
+
+<h3>Table versioning</h3>
+
+<b>This is currently an experimental feature.</b>
+<p>
+Having table with versioning means that you can go back to any moment in the history of the table and see
+its state. This is achieved by only appending changes to the table instead of doing modifications in place.
+Every record has additional start and end time attribute. In case the record is still actual, its end time
+is null. The write operations on the table are modified as follows:
+<ul>
+ <li>INSERT - start time is set to current time, end time is set to null
+ <li>UPDATE - original record gets its end time set to current time, new record is inserted to the table
+containing the new version of the record
+ <li>DELETE - end time of the record is set to the current time.
+</ul>
+To get actual view of the table, you must set a condition that end time is null, otherwise you would fetch
+contents of the table in the whole history. It's common to use a convenience ("current") view that has
+this constraint included in the definition.
+<p>
+It's recommended to read
+<a href="http://www.varlena.com/GeneralBits/Tidbits/tt.pdf">TimeTravelling in PostgreSQL</a> [PDF] presentation
+as the table versioning feature is heavily based on it. Another good source of information (for those understanding German) is
+<a href="http://gis.hsr.ch/wiki/images/4/44/Postgis_historisierung.pdf">Historisierung von Tabellen in PostGIS</a> [PDF]
+which discusses the topic more in context of GIS application and gives examples of the implementation.
+
+</div>
+</body>
+
+</html>
