@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/" >
+		<file>icons/collapse.png</file>   
+		<file>icons/expand.png</file>   
+ 		<file>icons/mActionZoomToLayer.png</file>   
+ 		<file>icons/mIconLineLayer.png</file>   
+ 		<file>icons/mIconPointLayer.png</file>   
+ 		<file>icons/mIconPolygonLayer.png</file>   
+ 		<file>icons/save.png</file>   		
+ 		<file>icons/removeLayer.png</file>   
+ 		<file>icons/symbology.png</file>   
+    </qresource>
+</RCC>
