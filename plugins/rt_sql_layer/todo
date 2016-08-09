@@ -1,0 +1,4 @@
+- use QtSql instead of psycopg ?
+
+- allow cancel preview rendering with ESC
+- allow sorting of preview table
